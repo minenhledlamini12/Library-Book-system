@@ -1,0 +1,156 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+// Mock data for books
+const mockBooks = [
+  { id: 1, title: 'To Kill a Mockingbird', author: 'Harper Lee', available: true },
+  { id: 2, title: '1984', author: 'George Orwell', available: false },
+  { id: 3, title: 'Pride and Prejudice', author: 'Jane Austen', available: true },
+]
+
+export default function LibrarySystem() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [books, setBooks] = useState(mockBooks)
+  const [scannedCode, setScannedCode] = useState('')
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    // TODO: Implement actual login logic
+    setIsLoggedIn(true)
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setUsername('')
+    setPassword('')
+  }
+
+  const filteredBooks = books.filter(book =>
+    book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    book.author.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const handleScan = () => {
+    // TODO: Implement actual QR code scanning
+    const mockScannedCode = 'BOOK-' + Math.floor(Math.random() * 1000)
+    setScannedCode(mockScannedCode)
+  }
+
+  useEffect(() => {
+    if (scannedCode) {
+      // TODO: Implement actual book borrowing/returning logic
+      console.log(`Book ${scannedCode} has been ${Math.random() > 0.5 ? 'borrowed' : 'returned'}`)
+    }
+  }, [scannedCode])
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <header className="w-full py-4 bg-blue-600 text-white">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Library Self-Borrowing System</h1>
+          {isLoggedIn && (
+            <Button onClick={handleLogout} variant="outline">Logout</Button>
+          )}
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        {!isLoggedIn ? (
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader>
+              <CardTitle>Login</CardTitle>
+              <CardDescription>Please login to access the library system</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full">Log In</Button>
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <Tabs defaultValue="catalog" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="catalog">Book Catalog</TabsTrigger>
+              <TabsTrigger value="scanner">QR Scanner</TabsTrigger>
+            </TabsList>
+            <TabsContent value="catalog">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Book Catalog</CardTitle>
+                  <CardDescription>Search and browse available books</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex space-x-2">
+                    <Input
+                      type="text"
+                      placeholder="Search books..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Button onClick={() => setSearchTerm('')} variant="outline">Clear</Button>
+                  </div>
+                  <ul className="space-y-2">
+                    {filteredBooks.map(book => (
+                      <li key={book.id} className="p-2 border rounded">
+                        <h3 className="font-bold">{book.title}</h3>
+                        <p>Author: {book.author}</p>
+                        <p>Status: {book.available ? 'Available' : 'Borrowed'}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="scanner">
+              <Card>
+                <CardHeader>
+                  <CardTitle>QR Code Scanner</CardTitle>
+                  <CardDescription>Scan book QR codes to borrow or return</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button onClick={handleScan} className="w-full">Scan QR Code</Button>
+                  {scannedCode && (
+                    <p className="text-center">Scanned Code: {scannedCode}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
+      </main>
+
+      <footer className="w-full py-4 bg-gray-200 text-center mt-8">
+        <p>&copy; 2024 Library Self-Borrowing System. All rights reserved.</p>
+      </footer>
+    </div>
+  )
+}
